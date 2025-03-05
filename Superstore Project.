@@ -1,0 +1,28 @@
+--orders the items by price.
+SELECT item_name, price
+FROM superstore
+ORDER BY price desc;
+
+--show a statistic about the item prices, like a sum, average, minimum, maximum, or count.
+SELECT 
+   COUNT(*) AS total_items,
+    ROUND(SUM(price), 2) AS total_price,
+    ROUND(AVG(price), 2) AS average_price,
+    ROUND(MIN(price), 2) AS min_price,
+    ROUND(MAX(price), 2) AS max_price
+FROM superstore;
+
+--show a statistic about the price for items in the category of "Kitchen Supplies"
+SELECT 
+   COUNT(*) AS total_items,
+    ROUND(SUM(price), 2) AS kitchen_total_price,
+    ROUND(AVG(price), 2) AS kitchen_average_price,
+    ROUND(MIN(price), 2) AS kitchen_min_price,
+    ROUND(MAX(price), 2) AS kitchen_max_price
+FROM superstore
+WHERE category = 'Kitchen Supplies';
+
+--How many air purifiers are in stock?
+SELECT item_name, stock_quantity
+FROM superstore
+WHERE item_name = 'Air Purifier';
