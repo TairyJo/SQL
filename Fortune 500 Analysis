@@ -1,0 +1,82 @@
+-- Identify which industries offer healthcare benefits (healthcare_benefits = 1) and have, on average, more than 20 days of paid time off.Additionally, we want to categorize companies by their maternity leave policy as:"Limited" (fewer than 10 weeks) "Standard" (10 to 12 weeks)"Generous" (more than 12 weeks. We are only interested in industries that have more than 2 companies represented in the dataset.
+
+SELECT 
+    industry,
+    COUNT(*) AS company_count,
+    AVG(paid_time_off_days) AS avg_pto,
+    AVG(revenue / employees) AS avg_revenue_per_employee,
+    CASE 
+        WHEN AVG(maternity_leave_weeks) < 10 THEN 'Limited'
+        WHEN AVG(maternity_leave_weeks) BETWEEN 10 AND 12 THEN 'Standard'
+        ELSE 'Generous'
+    END AS maternity_policy
+FROM fortune_companies
+WHERE 
+    paid_time_off_days > 20
+    AND healthcare_benefits = 1
+GROUP BY industry
+HAVING 
+    COUNT(*) > 2;
+    
+  
+  --Identify industries that do offer healthcare benefits (healthcare_benefits = 1), but have an average employee tenure of less than 6 years.Classify these industries by retention level and show how many companies belong to each industry.
+  
+  SELECT 
+    industry,
+    COUNT(*) AS company_count,
+    ROUND(AVG(avg_employee_tenure), 2) AS avg_tenure,
+    CASE 
+        WHEN AVG(avg_employee_tenure) < 6 THEN 'Low'
+        WHEN AVG(avg_employee_tenure) BETWEEN 6 AND 7 THEN 'Medium'
+        ELSE 'High'
+    END AS retention
+FROM fortune_companies
+WHERE healthcare_benefits = 1
+GROUP BY industry
+HAVING AVG(avg_employee_tenure) < 6;
+
+--We want to analyze industries within Technology, Healthcare, Finance, and Retail that offer paid time off. For each industry, show the number of companies, the average number of paid time off days (rounded to 2 decimal places), and categorize them as having a Scarce, Normal, or Generous paid time off policy based on their average. Only include industries with fewer than 3 companies.
+
+SELECT 
+  industry,
+  COUNT(*) AS company_count,
+  ROUND(AVG(paid_time_off_days), 2) AS avg_pto_days,
+  CASE 
+    WHEN AVG(paid_time_off_days) < 18 THEN 'Scarce'
+    WHEN AVG(paid_time_off_days) BETWEEN 18 AND 21 THEN 'Normal'
+    ELSE 'Generous'
+  END AS pto_level
+FROM fortune_companies
+WHERE industry IN ('Technology', 'Healthcare', 'Finance', 'Retail')
+GROUP BY industry
+HAVING COUNT(*) < 3;
+
+-- Find all industries except 'Retail' and 'Telecommunications' (NOT IN). For each, calculate the average employee tenure, round it to 2 decimals, and classify retention as Low (<6 years), Medium (6–7 years), or High (>7 years). Only include industries where the average tenure is greater than 5 years (HAVING).
+
+SELECT industry, 
+ROUND (AVG(avg_employee_tenure),2) AS avg_tenure,
+CASE
+	WHEN AVG(avg_employee_tenure) < 6 THEN 'Low'
+    WHEN AVG(avg_employee_tenure) BETWEEN 6 AND 7 THEN 'Medium'
+    ELSE 'High'
+END AS Retention
+FROM fortune_companies
+WHERE industry NOT IN ('Retail', 'Telecommunications')
+GROUP BY industry
+HAVING AVG(avg_employee_tenure) > 5;
+
+
+--We want to evaluate the balance between healthcare benefits and paid time off. From the industries that do offer healthcare benefits (healthcare_benefits = 1), identify which ones have an average of more than 10 weeks of maternity leave. Then, classify each industry based on the average number of paid_time_off_days: label it "Basic" if the average is less than 15, "Standard" if it's between 15 and 20, or "Premium" if it's more than 20. Only include industries that have at least 3 companies registered.
+
+SELECT industry, 
+  COUNT(*) AS company_count,
+  CASE
+    WHEN AVG(paid_time_off_days) < 15 THEN 'Basic'
+    WHEN AVG(paid_time_off_days) BETWEEN 15 AND 20 THEN 'Standard'
+    ELSE 'Premium'
+  END AS avg_pto
+FROM fortune_companies
+WHERE healthcare_benefits = 1 
+  AND maternity_leave_weeks > 10
+GROUP BY industry
+HAVING COUNT(*) > 3;
