@@ -1,0 +1,72 @@
+SELECT * FROM vips LIMIT 5;
+SELECT * FROM reservations LIMIT 5;
+SELECT * FROM events LIMIT 5;
+SELECT * FROM hotels LIMIT 5;
+
+--List the full name of all VIPs who are speaking at a Keynote event, along with the event name.
+SELECT vips.first_name
+, vips.last_name
+, events.event_name
+FROM vips 
+JOIN events
+ON vips.event = events.event_id
+WHERE events.event_type = 'Keynote';
+
+--Show a list of all VIPs and whether or not they RSVP’d to the welcome party (even if they have no reservation).
+
+SELECT vips.first_name
+, vips.last_name
+, reservations.welcome_rsvp as welcome_party
+FROM vips 
+LEFT JOIN reservations 
+ON vips.member_id = reservations.member_id;
+
+--Show the VIPs’ full name, the name of the event they’re speaking at, and the name of the hotel they are staying in.
+
+SELECT vips.first_name || ' ' || vips.last_name AS vip_name
+, events.event_name
+, hotels.hotel_name
+FROM vips 
+JOIN events 
+ON vips.event = events.event_id
+JOIN reservations
+ON vips.member_id = reservations.member_id
+JOIN hotels 
+ON reservations.hotel = hotels.hotel_id;
+
+-- List all VIPs who are staying in the same hotel as ‘Amina Al-Hassan’.
+
+SELECT 
+  v.first_name,
+  v.last_name,
+  h.hotel_name
+FROM vips v
+JOIN reservations r ON v.member_id = r.member_id
+JOIN hotels h ON r.hotel = h.hotel_id
+WHERE r.hotel = (
+  SELECT hotel
+  FROM reservations
+  WHERE member_id = (
+    SELECT member_id
+    FROM vips
+    WHERE first_name = 'Amina' AND last_name = 'Al-Hassan'
+  )
+);
+
+--Which hotels have more than 3 VIPs staying in them? Show the hotel name and number of guests.
+
+SELECT COUNT(*) AS vip_count
+, hotels.hotel_name
+FROM reservations
+JOIN hotels
+ON reservations.hotel = hotels.hotel_id
+GROUP BY hotels.hotel_name
+HAVING COUNT(*) > 3;
+
+--Find the name of each VIP and the person they are providing feedback to.
+SELECT 
+  vip1.first_name || ' ' || vip1.last_name AS receives_feedback,
+  feedback.first_name || ' ' || feedback.last_name AS gives_feedback
+FROM vips AS vip1
+JOIN vips AS feedback
+  ON vip1.member_id = feedback.provides_feedback_to;
