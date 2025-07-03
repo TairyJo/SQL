@@ -1,0 +1,36 @@
+--What are the top 10 most danceable songs (highest danceability), and who are the artists?
+SELECT 
+  track_name,
+  artist_name,
+  danceability
+FROM Spotifydata 
+ORDER BY danceability DESC
+LIMIT 10;
+
+--What is the average popularity of songs for each musical song_key? Sort the result from most to least popular.
+SELECT 
+    song_key,
+    AVG(popularity) AS avg_popularity
+FROM spotifydata 
+GROUP BY song_key
+ORDER BY avg_popularity DESC;
+
+--Which songs are likely to be instrumental? Return track names and artists where instrumentalness > 0.9 and speechiness < 0.05.
+SELECT 
+    artist_name,
+    track_name
+FROM spotifydata
+WHERE instrumentalness > 0.9 
+  AND speechiness < 0.05;
+
+--Group songs into mood categories based on valence Low if valence < 0.33, Medium if between 0.33 and 0.66, High if > 0.66. Then count how many songs fall into each category.
+SELECT
+  CASE
+    WHEN valence < 0.33 THEN 'Low'
+    WHEN valence BETWEEN 0.33 AND 0.66 THEN 'Medium'
+    ELSE 'High'
+  END AS mood_category,
+  COUNT(*) AS song_count
+FROM spotifydata
+GROUP BY mood_category
+ORDER BY song_count DESC;
