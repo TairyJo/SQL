@@ -1,0 +1,75 @@
+--Show Customers (their full names, customer ID, and country) who are not in the US.
+SELECT customers.FirstName || ' ' || customers.LastName AS CustomerName
+, customers.CustomerId
+, customers.Country
+FROM chinook.customers
+WHERE customers.Country <> 'USA';
+
+--Show only the Customers from Brazil.
+
+SELECT customers.FirstName || ' ' || customers.LastName AS CustomerName
+, customers.CustomerId
+, customers.Country
+FROM chinook.customers
+WHERE customers.Country = 'Brazil';
+
+--Find the Invoices of customers who are from Brazil. The resulting table should show the customer's full name, Invoice ID, Date of the invoice, and billing country.
+
+SELECT customers.FirstName || ' ' || customers.LastName AS CustomerName
+, customers.CustomerId
+, invoices.InvoiceId
+, invoices.InvoiceDate
+, invoices.BillingCountry
+FROM customers
+INNER JOIN invoices
+ON customers.CustomerId = invoices.CustomerId
+WHERE invoices.BillingCountry = 'Brazil';
+
+--Show the Employees who are Sales Agents.
+SELECT employees.FirstName || ' ' || employees.LastName AS AgentName
+FROM employees
+WHERE Title = 'Sales Support Agent';
+
+--Find a unique/distinct list of billing countries from the Invoice table.
+SELECT DISTINCT(invoices.BillingCountry)
+FROM invoices;
+
+--Provide a query that shows the invoices associated with each sales agent. The resulting table should include the Sales Agent's full name.
+SELECT invoices.InvoiceId
+, employees.FirstName || ' ' || employees.LastName AS AgentName
+FROM invoices 
+JOIN customers ON invoices.CustomerId = customers.CustomerId
+JOIN employees ON customers.SupportRepId = employees.EmployeeId;
+
+--Show the Invoice Total, Customer name, Country, and Sales Agent name for all invoices and customers.
+SELECT invoices.Total
+, customers.FirstName || ' ' || customers.LastName AS CustomerNamee
+, customers.Country
+, employees.FirstName || ' ' || employees.LastName AS AgentName
+FROM invoices 
+JOIN customers ON invoices.CustomerId = customers.CustomerId
+JOIN employees ON customers.SupportRepId = employees.EmployeeId;
+
+--How many Invoices were there in 2009?
+SELECT COUNT(*) as Total
+FROM invoices
+WHERE invoices.InvoiceDate >= '2009-01-01' AND invoices.InvoiceDate < '2010-01-01';
+
+--What are the total sales for 2009?
+SELECT SUM(invoices.Total)
+FROM invoices
+WHERE invoices.InvoiceDate >= '2009-01-01' AND invoices.InvoiceDate < '2010-01-01';
+
+--Write a query that includes the purchased track name with each invoice line ID.
+SELECT invoice_items.InvoiceLineId
+, tracks.Name
+FROM invoice_items
+JOIN tracks ON invoice_items.TrackId = tracks.TrackId;
+
+--Write a query that includes the purchased track name AND artist name with each invoice line ID.
+
+SELECT ar.name as Artist, t.Name as Track, i.InvoiceLineId
+FROM chinook.Invoice_items i
+LEFT JOIN chinook.tracks t ON i.TrackID = t.TrackID
+INNER JOIN chinook.albums a ON a.AlbumID = t.AlbumID
+LEFT JOIN chinook.artists ar ON ar.ArtistID = a.ArtistID;
